@@ -14,6 +14,10 @@ from datetime import datetime
 from google.auth.transport.requests import Request
 import os.path
 import pickle
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 SCOPES = [
     'https://www.googleapis.com/auth/analytics.readonly',
@@ -104,14 +108,14 @@ def process_analytics_data(response, url_path):
             }
     return None
 
-def update_spreadsheet(all_data):
+def update_spreadsheet(all_data, range_name):
     """Update Google Spreadsheet with just total users data"""
     credentials = get_credentials()
     service = build('sheets', 'v4', credentials=credentials)
     
     # TODO env var
-    SPREADSHEET_ID = '1NDVs6J6hWeuFp0-UMGa1Rwtf1Oue3Pl7zAfYB-t8ZEg'
-    RANGE_NAME = 'Sheet1!A1'
+    SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
+    RANGE_NAME = range_name
     
     # Update headers to include Product_Name
     headers = ['Product_Name', 'URL_Path', 'Unique_Users', 'Date', 'Time']
@@ -163,7 +167,7 @@ def debug_analytics_response(response):
 def main():
     # TODO env var
     # Replace with your GA4 property ID
-    PROPERTY_ID = '259899729'
+    PROPERTY_ID = os.getenv('GA_PROPERTY_ID')
     
     # Only track ipaas path
     url_paths = ['/products/ipaas', '/platform/workbot', '/integrations', '/platform/workflow-apps', '/platform/data-orchestration', '/platform/b2b-edi', '/platform/api-management', '/platform/insights', '/platform/mdm', '/platform/copilots']
@@ -179,7 +183,7 @@ def main():
             all_data.append(processed_data)
         
         # Update spreadsheet with all collected data
-        update_spreadsheet(all_data)
+        update_spreadsheet(all_data, 'Sheet1!A1')
         
         print(f"Total users data successfully transferred to spreadsheet! Timestamp: {datetime.now()}")
         
