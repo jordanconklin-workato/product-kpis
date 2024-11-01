@@ -47,17 +47,17 @@ def get_credentials():
     
     return creds
 
-def get_analytics_data(property_id, url_path):
+def get_analytics_data(property_id, url_path, field_name, match_type):
     """Fetch event data from Google Analytics 4 for specific URL path"""
     credentials = get_credentials()
     client = BetaAnalyticsDataClient(credentials=credentials)
     
     page_filter = FilterExpression(
         filter=Filter(
-            field_name="unifiedPagePathScreen",
+            field_name=field_name,
             string_filter={
                 "value": url_path,
-                "match_type": "ENDS_WITH",  # Using string value from enum docs
+                "match_type": match_type,
                 "case_sensitive": False
             }
         )
@@ -96,7 +96,8 @@ def process_analytics_data(response, url_path):
         '/platform/api-management': 'API Management',
         '/platform/insights': 'Process Insights',
         '/platform/mdm': 'Data Hub / MDM',
-        '/platform/copilots': 'Copilots'
+        '/platform/copilots': 'Copilots',
+        '/product-hub/': 'Product Hub'
     }
     
     for row in response.rows:
@@ -169,21 +170,35 @@ def main():
     # Replace with your GA4 property ID
     PROPERTY_ID = os.getenv('GA_PROPERTY_ID')
     
-    # Only track ipaas path
-    url_paths = ['/products/ipaas', '/platform/workbot', '/integrations', '/platform/workflow-apps', '/platform/data-orchestration', '/platform/b2b-edi', '/platform/api-management', '/platform/insights', '/platform/mdm', '/platform/copilots']
+    # First set of URLs (original paths)
+    url_paths_sheet1 = ['/products/ipaas', '/platform/workbot', '/integrations', 
+                       '/platform/workflow-apps', '/platform/data-orchestration', 
+                       '/platform/b2b-edi', '/platform/api-management', 
+                       '/platform/insights', '/platform/mdm', '/platform/copilots']
+    
+    # Product hub path
+    url_paths_sheet2 = ['/product-hub/']
     
     try:
-        all_data = []
-        
-        # Collect data for each URL path
-        for url_path in url_paths:
-            response = get_analytics_data(PROPERTY_ID, url_path)
+        # Process Sheet1 data with ENDS_WITH
+        all_data_sheet1 = []
+        for url_path in url_paths_sheet1:
+            response = get_analytics_data(PROPERTY_ID, url_path, "unifiedPagePathScreen", "ENDS_WITH")
             debug_analytics_response(response)
             processed_data = process_analytics_data(response, url_path)
-            all_data.append(processed_data)
+            all_data_sheet1.append(processed_data)
         
-        # Update spreadsheet with all collected data
-        update_spreadsheet(all_data, 'Sheet1!A1')
+        # Process Sheet2 data with CONTAINS
+        all_data_sheet2 = []
+        for url_path in url_paths_sheet2:
+            response = get_analytics_data(PROPERTY_ID, url_path, "unifiedPagePathScreen", "CONTAINS")
+            debug_analytics_response(response)
+            processed_data = process_analytics_data(response, url_path)
+            all_data_sheet2.append(processed_data)
+        
+        # Update both sheets
+        update_spreadsheet(all_data_sheet1, 'Sheet1!A1')
+        update_spreadsheet(all_data_sheet2, 'Sheet2!A1')
         
         print(f"Total users data successfully transferred to spreadsheet! Timestamp: {datetime.now()}")
         
