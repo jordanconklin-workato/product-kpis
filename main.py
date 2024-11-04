@@ -47,7 +47,7 @@ def get_credentials():
     
     return creds
 
-def get_analytics_data(property_id, url_path, field_name, match_type):
+def get_analytics_data(property_id, url_path, field_name="unifiedPagePathScreen", match_type="ENDS_WITH", start_date="28daysAgo", end_date="today"):
     """Fetch event data from Google Analytics 4 for specific URL path"""
     credentials = get_credentials()
     client = BetaAnalyticsDataClient(credentials=credentials)
@@ -74,8 +74,8 @@ def get_analytics_data(property_id, url_path, field_name, match_type):
             Metric(name="eventCountPerUser")
         ],
         date_ranges=[{
-            "start_date": "28daysAgo",
-            "end_date": "today"
+            "start_date": start_date,
+            "end_date": end_date
         }],
         dimension_filter=page_filter
     )
@@ -109,27 +109,27 @@ def process_analytics_data(response, url_path):
             }
     return None
 
-def update_spreadsheet(all_data, range_name):
+def update_spreadsheet(all_data, range_name, quarter=""):
     """Update Google Spreadsheet with just total users data"""
     credentials = get_credentials()
     service = build('sheets', 'v4', credentials=credentials)
     
-    # TODO env var
     SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
     RANGE_NAME = range_name
     
-    # Update headers to include Product_Name
-    headers = ['Product_Name', 'URL_Path', 'Unique_Users', 'Date', 'Time']
+    # Update headers to include quarter in Product_Name if specified
+    headers = [f'Product_Name {quarter}' if quarter else 'Product_Name', 
+              'URL_Path', 'Unique_Users', 'Date', 'Time']
     values = [headers]
     
-    # Add current date
+    # Add current date and time
     current_date = datetime.now().strftime('%Y-%m-%d')
     current_time = datetime.now().strftime('%H:%M:%S')
     
     for item in all_data:
         if item:  # Check if data exists
             values.append([
-                item['Product_Name'],  # Add product name to values
+                item['Product_Name'],
                 item['URL_Path'],
                 item['Unique_Users'],
                 current_date,
@@ -166,9 +166,11 @@ def debug_analytics_response(response):
     print("=== End Debug ===\n")
 
 def main():
-    # TODO env var
-    # Replace with your GA4 property ID
     PROPERTY_ID = os.getenv('GA_PROPERTY_ID')
+    
+    # Configure date range
+    START_DATE = "2024-01-01"  # You can use YYYY-MM-DD format
+    END_DATE = "today"         # or relative dates like "7daysAgo", "yesterday", "today"
     
     # First set of URLs (original paths)
     url_paths_sheet1 = ['/products/ipaas', '/platform/workbot', '/integrations', 
@@ -180,25 +182,72 @@ def main():
     url_paths_sheet2 = ['/product-hub/']
     
     try:
-        # Process Sheet1 data with ENDS_WITH
-        all_data_sheet1 = []
+        # Process Sheet1 data with ENDS_WITH for Quarter 2
+        all_data_sheet1_Q2 = []
         for url_path in url_paths_sheet1:
-            response = get_analytics_data(PROPERTY_ID, url_path, "unifiedPagePathScreen", "ENDS_WITH")
+            response = get_analytics_data(
+                PROPERTY_ID, 
+                url_path, 
+                "unifiedPagePathScreen", 
+                "ENDS_WITH",
+                "2024-05-01",
+                "2024-07-31"
+            )
             debug_analytics_response(response)
             processed_data = process_analytics_data(response, url_path)
-            all_data_sheet1.append(processed_data)
+            all_data_sheet1_Q2.append(processed_data)
+
+        # Process Sheet1 data with ENDS_WITH for Quarter 3
+        all_data_sheet1_Q3 = []
+        for url_path in url_paths_sheet1:
+            response = get_analytics_data(
+                PROPERTY_ID, 
+                url_path, 
+                "unifiedPagePathScreen", 
+                "ENDS_WITH",
+                "2024-08-01",
+                "2024-10-31"
+            )
+            debug_analytics_response(response)
+            processed_data = process_analytics_data(response, url_path)
+            all_data_sheet1_Q3.append(processed_data)
         
-        # Process Sheet2 data with CONTAINS
-        all_data_sheet2 = []
+        # Process Sheet2 data with CONTAINS for Quarter 2
+        all_data_sheet2_Q2 = []
         for url_path in url_paths_sheet2:
-            response = get_analytics_data(PROPERTY_ID, url_path, "unifiedPagePathScreen", "CONTAINS")
+            response = get_analytics_data(
+                PROPERTY_ID, 
+                url_path, 
+                "unifiedPagePathScreen", 
+                "CONTAINS",
+                "2024-05-01",
+                "2024-07-31"
+            )
             debug_analytics_response(response)
             processed_data = process_analytics_data(response, url_path)
-            all_data_sheet2.append(processed_data)
+            all_data_sheet2_Q2.append(processed_data)
         
+        # Process Sheet2 data with CONTAINS for Quarter 2
+        all_data_sheet2_Q3 = []
+        for url_path in url_paths_sheet2:
+            response = get_analytics_data(
+                PROPERTY_ID, 
+                url_path, 
+                "unifiedPagePathScreen", 
+                "CONTAINS",
+                "2024-08-01",
+                "2024-10-31"
+            )
+            debug_analytics_response(response)
+            processed_data = process_analytics_data(response, url_path)
+            all_data_sheet2_Q3.append(processed_data)
+
         # Update both sheets
-        update_spreadsheet(all_data_sheet1, 'Sheet1!A1')
-        update_spreadsheet(all_data_sheet2, 'Sheet2!A1')
+        update_spreadsheet(all_data_sheet1_Q2, 'Sheet1!A1', 'Q2')
+        update_spreadsheet(all_data_sheet1_Q3, 'Sheet1!A13', 'Q3')
+
+        update_spreadsheet(all_data_sheet2_Q2, 'Sheet2!A1', 'Q2')
+        update_spreadsheet(all_data_sheet2_Q3, 'Sheet2!A4', 'Q3')
         
         print(f"Total users data successfully transferred to spreadsheet! Timestamp: {datetime.now()}")
         
