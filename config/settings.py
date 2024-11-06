@@ -16,14 +16,20 @@ URL_PATHS_SHEET1 = [
     '/platform/insights', '/platform/mdm', '/platform/copilots'
 ]
 
+# For Q2 (April, May, June)
 URL_PATHS_SHEET2 = [
     '/product-hub/',
+    '/product-hub/product-scoop-april-2024/',
     '/product-hub/product-scoop-may-2024/',
-    '/product-hub/product-scoop-june-2024/',
+    '/product-hub/product-scoop-june-2024/'
+]
+
+# For Q3 (July, August, September)
+URL_PATHS_SHEET2_Q3 = [
+    '/product-hub/',
     '/product-hub/product-scoop-july-2024/',
     '/product-hub/product-scoop-august-2024/',
     '/product-hub/product-scoop-september-2024/',
-    '/product-hub/product-scoop-october-2024/',
     '/product-hub/platform-connector-releases-in-july-2024/',
     '/product-hub/platform-connector-releases-in-august-2024/',
     '/product-hub/platform-connector-releases-in-september-2024/'
@@ -42,6 +48,9 @@ PRODUCT_NAMES = {
     '/platform/mdm': 'Data Hub / MDM',
     '/platform/copilots': 'Copilots',
     '/product-hub/': 'Product Hub',
+    '/product-hub/product-scoop-april-2024/': 'Product Scoop April',
+    '/product-hub/product-scoop-may-2024/': 'Product Scoop May',
+    '/product-hub/product-scoop-june-2024/': 'Product Scoop June',
     '/product-hub/product-scoop-july-2024/': 'Product Scoop July',
     '/product-hub/product-scoop-august-2024/': 'Product Scoop August',
     '/product-hub/product-scoop-september-2024/': 'Product Scoop September',
