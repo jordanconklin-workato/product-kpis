@@ -54,7 +54,7 @@ def main():
 
         # Update all sheets
         update_spreadsheet(all_data_sheet1_Q2, 'Sheet1!A1', 'Q2')
-        update_spreadsheet(all_data_sheet1_Q3, 'Sheet1!A13', 'Q3')
+        update_spreadsheet(all_data_sheet1_Q3, 'Sheet1!A14', 'Q3')
         update_spreadsheet(all_data_sheet2_Q2, 'Sheet2!A1', 'Q2')
         update_spreadsheet(all_data_sheet2_Q3, 'Sheet2!A10', 'Q3')
         

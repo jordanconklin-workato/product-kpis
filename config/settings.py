@@ -13,7 +13,8 @@ URL_PATHS_SHEET1 = [
     '/products/ipaas', '/platform/workbot', '/integrations', 
     '/platform/workflow-apps', '/platform/data-orchestration', 
     '/platform/b2b-edi', '/platform/api-management', 
-    '/platform/insights', '/platform/mdm', '/platform/copilots'
+    '/platform/insights', '/platform/mdm', '/platform/copilots',
+    '/platform/ai-by-workato'
 ]
 
 # For Q2 (April, May, June)
@@ -47,6 +48,7 @@ PRODUCT_NAMES = {
     '/platform/insights': 'Process Insights',
     '/platform/mdm': 'Data Hub / MDM',
     '/platform/copilots': 'Copilots',
+    '/platform/ai-by-workato': 'AI by Workato',
     '/product-hub/': 'Product Hub',
     '/product-hub/product-scoop-april-2024/': 'Product Scoop April',
     '/product-hub/product-scoop-may-2024/': 'Product Scoop May',
