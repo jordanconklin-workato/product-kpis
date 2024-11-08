@@ -31,7 +31,10 @@ def get_analytics_data(property_id, url_path, field_name="unifiedPagePathScreen"
 
     request = RunReportRequest(
         property=f"properties/{property_id}",
-        dimensions=[Dimension(name="eventName")],
+        dimensions=[
+            Dimension(name="eventName"),
+            Dimension(name="newVsReturning")
+        ],
         metrics=[
             Metric(name="eventCount"),
             Metric(name="totalUsers"),
@@ -49,13 +52,21 @@ def process_analytics_data(response, url_path):
         'Product_Name': PRODUCT_NAMES.get(url_path, ''),
         'URL_Path': url_path,
         'Unique_Users': 0,
-        'Email_Submissions': 0
+        'Email_Submissions': 0,
+        'New_Users': 0,
+        'Returning_Users': 0
     }
     
     for row in response.rows:
         event_name = row.dimension_values[0].value
+        user_type = row.dimension_values[1].value
+        
         if event_name == 'page_view':
             result['Unique_Users'] = row.metric_values[1].value
+            if user_type == 'new':
+                result['New_Users'] = row.metric_values[1].value
+            elif user_type == 'returning':
+                result['Returning_Users'] = row.metric_values[1].value
         elif event_name == 'email_submission':
             result['Email_Submissions'] = row.metric_values[1].value
     

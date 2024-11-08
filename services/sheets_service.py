@@ -10,8 +10,25 @@ def update_spreadsheet(all_data, range_name, quarter=""):
     
     SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
     
-    headers = [f'Product_Name {quarter}' if quarter else 'Product_Name', 
-              'URL_Path', 'Unique_Users', 'Email_Submissions', 'Date', 'Time']
+    # Define quarter labels based on sheet and quarter
+    quarter_labels = {
+        ('Sheet1', 'Q2'): 'Q2 (May, June, July)',
+        ('Sheet1', 'Q3'): 'Q3 (August, September, October)',
+        ('Sheet2', 'Q2'): 'Q2 (April, May, June)',
+        ('Sheet2', 'Q3'): 'Q3 (July, August, September)'
+    }
+    
+    # Extract sheet name from range (e.g., 'Sheet1!A1' -> 'Sheet1')
+    sheet_name = range_name.split('!')[0]
+    
+    # Get appropriate quarter label
+    quarter_label = quarter_labels.get((sheet_name, quarter), quarter)
+    
+    headers = [
+        f'Product_Name {quarter_label}' if quarter else 'Product_Name', 
+        'URL_Path', 'Unique_Users', 'New_Users', 'Returning_Users',
+        'Email_Submissions', 'Date', 'Time'
+    ]
     values = [headers]
     
     current_date = datetime.now().strftime('%Y-%m-%d')
@@ -25,6 +42,8 @@ def update_spreadsheet(all_data, range_name, quarter=""):
                 item['Product_Name'],
                 item['URL_Path'],
                 item['Unique_Users'],
+                item['New_Users'],
+                item['Returning_Users'],
                 item['Email_Submissions'],
                 current_date,
                 current_time
