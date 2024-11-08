@@ -32,13 +32,12 @@ def get_analytics_data(property_id, url_path, field_name="unifiedPagePathScreen"
     request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[
-            Dimension(name="eventName"),
             Dimension(name="newVsReturning")
         ],
         metrics=[
-            Metric(name="eventCount"),
             Metric(name="totalUsers"),
-            Metric(name="eventCountPerUser")
+            Metric(name="newUsers"),
+            Metric(name="eventCount")
         ],
         date_ranges=[{"start_date": start_date, "end_date": end_date}],
         dimension_filter=page_filter
@@ -57,17 +56,17 @@ def process_analytics_data(response, url_path):
         'Returning_Users': 0
     }
     
+    total_users = 0
     for row in response.rows:
-        event_name = row.dimension_values[0].value
-        user_type = row.dimension_values[1].value
+        user_type = row.dimension_values[0].value
+        users = int(row.metric_values[0].value)
         
-        if event_name == 'page_view':
-            result['Unique_Users'] = row.metric_values[1].value
-            if user_type == 'new':
-                result['New_Users'] = row.metric_values[1].value
-            elif user_type == 'returning':
-                result['Returning_Users'] = row.metric_values[1].value
-        elif event_name == 'email_submission':
-            result['Email_Submissions'] = row.metric_values[1].value
+        if user_type == 'new':
+            result['New_Users'] = users
+        elif user_type == 'returning':
+            result['Returning_Users'] = users
+        total_users += users
+    
+    result['Unique_Users'] = total_users
     
     return result
