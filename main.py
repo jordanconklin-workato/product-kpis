@@ -35,7 +35,7 @@ def main():
         all_data_sheet2_Q2 = []
         for url_path in URL_PATHS_SHEET2_Q2:  # Q2 content (Apr-June)
             response = get_analytics_data(
-                PROPERTY_ID, url_path, "unifiedPagePathScreen", "CONTAINS",
+                PROPERTY_ID, url_path, "unifiedPagePathScreen", "ENDS_WITH",
                 "2024-01-01", today  # Full year tracking
             )
             debug_analytics_response(response)
@@ -45,7 +45,7 @@ def main():
         all_data_sheet2_Q3 = []
         for url_path in URL_PATHS_SHEET2_Q3:  # Q3 content (July-Sept)
             response = get_analytics_data(
-                PROPERTY_ID, url_path, "unifiedPagePathScreen", "CONTAINS",
+                PROPERTY_ID, url_path, "unifiedPagePathScreen", "ENDS_WITH",
                 "2024-01-01", today  # Full year tracking
             )
             debug_analytics_response(response)
